@@ -12,6 +12,25 @@ import {
 } from "@/types/military";
 import { Database } from "@/integrations/supabase/types";
 
+// Helper function to map database response to MilitaryPersonnel interface
+const mapToMilitaryPersonnel = (data: any): MilitaryPersonnel => {
+  return {
+    ...data,
+    // Set default values for fields that don't exist in database yet
+    has_cfo: data.has_cfo ?? false,
+    has_cao: data.has_cao ?? false,
+    has_chobm: data.has_chobm ?? false,
+    has_superior_degree: data.has_superior_degree ?? false,
+    is_health_approved: data.is_health_approved ?? true,
+    has_reduced_interstice: data.has_reduced_interstice ?? false,
+    is_sub_judice: data.is_sub_judice ?? false,
+    is_in_disciplinary_process: data.is_in_disciplinary_process ?? false,
+    is_on_desertion: data.is_on_desertion ?? false,
+    is_on_leave: data.is_on_leave ?? false,
+    is_on_limited_service: data.is_on_limited_service ?? false
+  };
+};
+
 // Get the minimum required interstice for promotion based on rank and division type
 export function getMinimumInterstice(rank: RankType, divisionType: string): number {
   // Based on RF005 from requirements document
@@ -146,7 +165,7 @@ export async function generateQAA(divisionId: number): Promise<PromotionAccessLi
       .eq('division_id', divisionId);
     
     if (militaryResult.error) throw militaryResult.error;
-    const militaryPersonnel = militaryResult.data || [];
+    const militaryPersonnel = militaryResult.data?.map(mapToMilitaryPersonnel) || [];
     
     // 3. Filter military personnel that meet requirements and sort by promotion date
     const accessList: PromotionAccessList[] = await Promise.all(
@@ -198,7 +217,7 @@ export async function generateQAM(divisionId: number): Promise<PromotionAccessLi
       .eq('division_id', divisionId);
     
     if (militaryResult.error) throw militaryResult.error;
-    const militaryPersonnel = militaryResult.data || [];
+    const militaryPersonnel = militaryResult.data?.map(mapToMilitaryPersonnel) || [];
     
     // 3. Process each military, get their concept sheet points
     const accessList: PromotionAccessList[] = await Promise.all(
@@ -338,7 +357,7 @@ export function getNextPromotionDate(): Date {
   return julyPromotion;
 }
 
-// Update military service with our new promotion-related functions
+// Update military service with our new promotion-related fields
 export const updateMilitaryPersonnelFields = async (
   id: string, 
   fields: Partial<MilitaryPersonnel>
@@ -352,5 +371,5 @@ export const updateMilitaryPersonnelFields = async (
   
   if (error) throw error;
   if (!data) throw new Error("No data returned after update operation");
-  return data;
+  return mapToMilitaryPersonnel(data);
 };

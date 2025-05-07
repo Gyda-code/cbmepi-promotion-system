@@ -3,6 +3,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { ConceptSheet, Division, MilitaryPersonnel, PromotionHistory, RankType } from "@/types/military";
 import { Database } from "@/integrations/supabase/types";
 
+// Helper function to map database response to MilitaryPersonnel interface
+const mapToMilitaryPersonnel = (data: any): MilitaryPersonnel => {
+  return {
+    ...data,
+    // Set default values for fields that don't exist in database yet
+    has_cfo: data.has_cfo ?? false,
+    has_cao: data.has_cao ?? false,
+    has_chobm: data.has_chobm ?? false,
+    has_superior_degree: data.has_superior_degree ?? false,
+    is_health_approved: data.is_health_approved ?? true,
+    has_reduced_interstice: data.has_reduced_interstice ?? false,
+    is_sub_judice: data.is_sub_judice ?? false,
+    is_in_disciplinary_process: data.is_in_disciplinary_process ?? false,
+    is_on_desertion: data.is_on_desertion ?? false,
+    is_on_leave: data.is_on_leave ?? false,
+    is_on_limited_service: data.is_on_limited_service ?? false
+  };
+};
+
 // Divisions
 export const getDivisions = async (): Promise<Division[]> => {
   const { data, error } = await supabase
@@ -37,7 +56,7 @@ export const getMilitaryPersonnelByDivision = async (divisionId: number): Promis
     .order("full_name");
   
   if (error) throw error;
-  return data || [];
+  return (data || []).map(mapToMilitaryPersonnel);
 };
 
 export const getMilitaryPersonnelById = async (id: string): Promise<MilitaryPersonnel | null> => {
@@ -51,7 +70,7 @@ export const getMilitaryPersonnelById = async (id: string): Promise<MilitaryPers
     if (error.code === 'PGRST116') return null; // No rows found
     throw error;
   }
-  return data;
+  return data ? mapToMilitaryPersonnel(data) : null;
 };
 
 export const createMilitaryPersonnel = async (military: Omit<MilitaryPersonnel, 'id' | 'created_at' | 'updated_at'>): Promise<MilitaryPersonnel> => {
@@ -70,7 +89,7 @@ export const createMilitaryPersonnel = async (military: Omit<MilitaryPersonnel, 
     throw new Error("No data returned after insert operation");
   }
   
-  return data;
+  return mapToMilitaryPersonnel(data);
 };
 
 export const updateMilitaryPersonnel = async (id: string, military: Partial<MilitaryPersonnel>): Promise<MilitaryPersonnel> => {
@@ -83,7 +102,7 @@ export const updateMilitaryPersonnel = async (id: string, military: Partial<Mili
   
   if (error) throw error;
   if (!data) throw new Error("No data returned after update operation");
-  return data;
+  return mapToMilitaryPersonnel(data);
 };
 
 export const deleteMilitaryPersonnel = async (id: string): Promise<void> => {
@@ -211,3 +230,4 @@ export const rankOrder: Record<RankType, number> = {
   'TENENTE-CORONEL': 13,
   'CORONEL': 14
 };
+
