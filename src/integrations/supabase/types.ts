@@ -9,7 +9,171 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      concept_sheets: {
+        Row: {
+          civil_courses_count: number | null
+          compliments_count: number | null
+          created_at: string | null
+          id: string
+          lack_of_performance_count: number | null
+          medals_count: number | null
+          military_courses_count: number | null
+          military_id: string | null
+          punishments_count: number | null
+          service_time_years: number | null
+          total_points: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          civil_courses_count?: number | null
+          compliments_count?: number | null
+          created_at?: string | null
+          id?: string
+          lack_of_performance_count?: number | null
+          medals_count?: number | null
+          military_courses_count?: number | null
+          military_id?: string | null
+          punishments_count?: number | null
+          service_time_years?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          civil_courses_count?: number | null
+          compliments_count?: number | null
+          created_at?: string | null
+          id?: string
+          lack_of_performance_count?: number | null
+          medals_count?: number | null
+          military_courses_count?: number | null
+          military_id?: string | null
+          punishments_count?: number | null
+          service_time_years?: number | null
+          total_points?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "concept_sheets_military_id_fkey"
+            columns: ["military_id"]
+            isOneToOne: false
+            referencedRelation: "military_personnel"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      divisions: {
+        Row: {
+          code: string
+          created_at: string | null
+          description: string | null
+          id: number
+          name: string
+          type: Database["public"]["Enums"]["division_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          name: string
+          type: Database["public"]["Enums"]["division_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          name?: string
+          type?: Database["public"]["Enums"]["division_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      military_personnel: {
+        Row: {
+          created_at: string | null
+          division_id: number
+          entry_date: string
+          full_name: string
+          id: string
+          last_promotion_date: string | null
+          photo_url: string | null
+          rank: Database["public"]["Enums"]["rank_type"]
+          registration_number: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          division_id: number
+          entry_date: string
+          full_name: string
+          id?: string
+          last_promotion_date?: string | null
+          photo_url?: string | null
+          rank: Database["public"]["Enums"]["rank_type"]
+          registration_number: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          division_id?: number
+          entry_date?: string
+          full_name?: string
+          id?: string
+          last_promotion_date?: string | null
+          photo_url?: string | null
+          rank?: Database["public"]["Enums"]["rank_type"]
+          registration_number?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "military_personnel_division_id_fkey"
+            columns: ["division_id"]
+            isOneToOne: false
+            referencedRelation: "divisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promotion_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          military_id: string | null
+          new_rank: Database["public"]["Enums"]["rank_type"]
+          previous_rank: Database["public"]["Enums"]["rank_type"]
+          promotion_date: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          military_id?: string | null
+          new_rank: Database["public"]["Enums"]["rank_type"]
+          previous_rank: Database["public"]["Enums"]["rank_type"]
+          promotion_date: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          military_id?: string | null
+          new_rank?: Database["public"]["Enums"]["rank_type"]
+          previous_rank?: Database["public"]["Enums"]["rank_type"]
+          promotion_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_history_military_id_fkey"
+            columns: ["military_id"]
+            isOneToOne: false
+            referencedRelation: "military_personnel"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +182,22 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      division_type: "QOEM" | "QOE" | "QORR" | "QPBM" | "QPRR"
+      rank_type:
+        | "SOLDADO"
+        | "CABO"
+        | "SARGENTO"
+        | "3º SARGENTO"
+        | "2º SARGENTO"
+        | "1º SARGENTO"
+        | "SUBTENENTE"
+        | "ASPIRANTE"
+        | "2º TENENTE"
+        | "1º TENENTE"
+        | "CAPITÃO"
+        | "MAJOR"
+        | "TENENTE-CORONEL"
+        | "CORONEL"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +312,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      division_type: ["QOEM", "QOE", "QORR", "QPBM", "QPRR"],
+      rank_type: [
+        "SOLDADO",
+        "CABO",
+        "SARGENTO",
+        "3º SARGENTO",
+        "2º SARGENTO",
+        "1º SARGENTO",
+        "SUBTENENTE",
+        "ASPIRANTE",
+        "2º TENENTE",
+        "1º TENENTE",
+        "CAPITÃO",
+        "MAJOR",
+        "TENENTE-CORONEL",
+        "CORONEL",
+      ],
+    },
   },
 } as const

@@ -1,55 +1,52 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format, parseISO } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { toast } from 'sonner';
-import { Award, Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus, Award } from 'lucide-react';
 
 import { 
+  getPromotionHistoryByMilitaryId, 
+  getMilitaryPersonnelById,
   addPromotion,
-  getMilitaryPersonnelById, 
-  getPromotionHistoryByMilitaryId,
   rankOrder
 } from '@/services/militaryService';
-import { RankType } from '@/types/military';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogFooter, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from '@/components/ui/dialog';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+import { MilitaryPersonnel, PromotionHistory, RankType } from '@/types/military';
+import { getInitials } from '@/lib/utils';
+
+const rankOptions: RankType[] = [
+  'SOLDADO',
+  'CABO',
+  'SARGENTO',
+  '3º SARGENTO',
+  '2º SARGENTO',
+  '1º SARGENTO',
+  'SUBTENENTE',
+  'ASPIRANTE',
+  '2º TENENTE',
+  '1º TENENTE',
+  'CAPITÃO',
+  'MAJOR',
+  'TENENTE-CORONEL',
+  'CORONEL'
+];
 
 const formSchema = z.object({
   promotion_date: z.string().min(1, 'Data da promoção é obrigatória'),
-  previous_rank: z.enum([
-    'SOLDADO',
-    'CABO',
-    'SARGENTO',
-    '3º SARGENTO',
-    '2º SARGENTO',
-    '1º SARGENTO',
-    'SUBTENENTE',
-    'ASPIRANTE',
-    '2º TENENTE',
-    '1º TENENTE',
-    'CAPITÃO',
-    'MAJOR',
-    'TENENTE-CORONEL',
-    'CORONEL'
-  ] as const),
   new_rank: z.enum([
     'SOLDADO',
     'CABO',
@@ -70,28 +67,9 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const rankOptions: RankType[] = [
-  'SOLDADO',
-  'CABO',
-  'SARGENTO',
-  '3º SARGENTO',
-  '2º SARGENTO',
-  '1º SARGENTO',
-  'SUBTENENTE',
-  'ASPIRANTE',
-  '2º TENENTE',
-  '1º TENENTE',
-  'CAPITÃO',
-  'MAJOR',
-  'TENENTE-CORONEL',
-  'CORONEL'
-];
-
 const PromotionsHistory = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -99,8 +77,7 @@ const PromotionsHistory = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       promotion_date: format(new Date(), 'yyyy-MM-dd'),
-      previous_rank: 'SOLDADO',
-      new_rank: 'CABO',
+      new_rank: 'SOLDADO'
     }
   });
 
@@ -110,52 +87,50 @@ const PromotionsHistory = () => {
     enabled: !!id
   });
 
-  const { 
-    data: promotions, 
-    isLoading: isPromotionsLoading,
-    refetch: refetchPromotions
-  } = useQuery({
+  const { data: promotions, isLoading: isPromotionsLoading, refetch } = useQuery({
     queryKey: ['promotions', id],
     queryFn: () => getPromotionHistoryByMilitaryId(id!),
     enabled: !!id
   });
 
+  useEffect(() => {
+    if (military) {
+      form.setValue('new_rank', getNextRank(military.rank));
+    }
+  }, [military, form]);
+
+  const getNextRank = (currentRank: RankType): RankType => {
+    const currentRankOrder = rankOrder[currentRank];
+    
+    for (const rank of rankOptions) {
+      if (rankOrder[rank] > currentRankOrder) {
+        return rank;
+      }
+    }
+    
+    return currentRank;
+  };
+
   const onSubmit = async (data: FormValues) => {
     try {
       setIsSubmitting(true);
 
-      if (!id) {
-        toast.error('ID do militar não encontrado');
-        return;
-      }
-
-      // Validate ranks (new rank should be higher than previous rank)
-      if (rankOrder[data.new_rank] <= rankOrder[data.previous_rank]) {
-        toast.error('O novo posto deve ser superior ao posto anterior');
+      if (!id || !military) {
+        toast.error('Dados do militar não encontrados');
         return;
       }
 
       await addPromotion({
         military_id: id,
         promotion_date: data.promotion_date,
-        previous_rank: data.previous_rank,
+        previous_rank: military.rank,
         new_rank: data.new_rank
       });
 
       toast.success('Promoção registrada com sucesso!');
       setIsDialogOpen(false);
-      
-      // Reset form
-      form.reset({
-        promotion_date: format(new Date(), 'yyyy-MM-dd'),
-        previous_rank: military?.rank || 'SOLDADO',
-        new_rank: rankOptions[rankOptions.indexOf(military?.rank || 'SOLDADO') + 1] || 'CABO',
-      });
-      
-      // Refetch data
-      refetchPromotions();
-      queryClient.invalidateQueries({ queryKey: ['military', id] });
-      
+      refetch();
+
     } catch (error) {
       console.error('Error submitting form:', error);
       toast.error('Erro ao registrar promoção. Por favor, tente novamente.');
@@ -182,108 +157,90 @@ const PromotionsHistory = () => {
 
   return (
     <Card className="max-w-3xl mx-auto">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle>Histórico de Promoções</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Histórico de Promoções</CardTitle>
+        </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="mr-1 h-4 w-4" />
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
               Nova Promoção
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Registrar Nova Promoção</DialogTitle>
+              <DialogTitle>Registrar Promoção</DialogTitle>
+              <DialogDescription>
+                Preencha os dados para registrar uma nova promoção para {military.full_name}.
+              </DialogDescription>
             </DialogHeader>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid gap-4">
-                  <div className="bg-muted p-3 rounded-lg mb-4">
-                    <h3 className="font-semibold mb-1">{military.full_name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Posto atual: <span className="font-medium">{military.rank}</span>
-                    </p>
+                <div className="flex items-center space-x-4 py-2">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={military.photo_url || ''} />
+                    <AvatarFallback>{getInitials(military.full_name)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-medium">{military.full_name}</h3>
+                    <p className="text-sm text-muted-foreground">Posto atual: {military.rank}</p>
                   </div>
-
-                  <FormField
-                    control={form.control}
-                    name="promotion_date"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Data da Promoção</FormLabel>
-                        <FormControl>
-                          <Input type="date" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="previous_rank"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Posto/Graduação Anterior</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o posto anterior" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {rankOptions.map((rank) => (
-                              <SelectItem key={rank} value={rank}>
-                                {rank}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="new_rank"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Novo Posto/Graduação</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecione o novo posto" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {rankOptions.map((rank) => (
-                              <SelectItem key={rank} value={rank}>
-                                {rank}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="promotion_date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Data da Promoção</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="new_rank"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Novo Posto/Graduação</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione o novo posto/graduação" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {rankOptions
+                            .filter(rank => rankOrder[rank] > rankOrder[military.rank])
+                            .map((rank) => (
+                              <SelectItem key={rank} value={rank}>
+                                {rank}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <DialogFooter>
-                  <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                  >
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Registrar Promoção
+                    Registrar
                   </Button>
                 </DialogFooter>
               </form>
@@ -291,13 +248,24 @@ const PromotionsHistory = () => {
           </DialogContent>
         </Dialog>
       </CardHeader>
+
       <CardContent>
-        <div className="bg-muted p-3 rounded-lg mb-4">
-          <h3 className="font-semibold mb-1">{military.full_name}</h3>
-          <p className="text-sm">
-            <span className="text-muted-foreground">Posto atual:</span>{' '}
-            <span className="font-medium">{military.rank}</span>
-          </p>
+        <div className="bg-muted p-4 rounded-lg mb-6">
+          <h3 className="font-semibold text-lg mb-2">Dados do Militar</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Nome</p>
+              <p className="font-medium">{military.full_name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Posto/Graduação Atual</p>
+              <p className="font-medium">{military.rank}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Matrícula</p>
+              <p className="font-medium">{military.registration_number}</p>
+            </div>
+          </div>
         </div>
 
         <Table>
@@ -305,42 +273,33 @@ const PromotionsHistory = () => {
             <TableRow>
               <TableHead>Data da Promoção</TableHead>
               <TableHead>Posto/Graduação Anterior</TableHead>
-              <TableHead>Posto/Graduação Promovido</TableHead>
+              <TableHead>Posto/Graduação Novo</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {promotions && promotions.length > 0 ? (
               promotions.map((promotion) => (
                 <TableRow key={promotion.id}>
-                  <TableCell>
-                    {format(parseISO(promotion.promotion_date), 'dd/MM/yyyy')}
-                  </TableCell>
+                  <TableCell>{format(new Date(promotion.promotion_date), 'dd/MM/yyyy')}</TableCell>
                   <TableCell>{promotion.previous_rank}</TableCell>
-                  <TableCell className="font-medium flex items-center gap-2">
-                    <Award className="h-4 w-4 text-primary" />
-                    {promotion.new_rank}
-                  </TableCell>
+                  <TableCell className="font-medium">{promotion.new_rank}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-center py-6">
+                <TableCell colSpan={3} className="text-center py-4">
                   Nenhuma promoção registrada.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
-
-        <div className="mt-6">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate(-1)}
-          >
-            Voltar
-          </Button>
-        </div>
       </CardContent>
+      <CardFooter>
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          Voltar
+        </Button>
+      </CardFooter>
     </Card>
   );
 };
