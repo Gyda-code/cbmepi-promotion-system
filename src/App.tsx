@@ -8,8 +8,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Index from "./pages/Index"
 import NotFound from "./pages/NotFound"
 import Lei7772 from "./pages/legislacao/Lei7772"
-import PlaceholderOficiais from "./pages/oficiais/PlaceholderOficiais"
-import PlaceholderPracas from "./pages/pracas/PlaceholderPracas"
+
+// Military pages
+import MilitaryListPage from "./pages/military/MilitaryListPage"
+import MilitaryFormPage from "./pages/military/MilitaryFormPage"
+import ConceptSheetPage from "./pages/military/ConceptSheetPage"
+import PromotionsHistoryPage from "./pages/military/PromotionsHistoryPage"
 
 const queryClient = new QueryClient()
 
@@ -24,19 +28,16 @@ const App = () => (
             <Route path="/" element={<Index />} />
             
             {/* Rotas de Oficiais */}
-            <Route path="/oficiais/qoem" element={<PlaceholderOficiais />} />
-            <Route path="/oficiais/qoe" element={<PlaceholderOficiais />} />
-            <Route path="/oficiais/qorr" element={<PlaceholderOficiais />} />
-            <Route path="/oficiais/qfv" element={<PlaceholderOficiais />} />
-            <Route path="/oficiais/qaa" element={<PlaceholderOficiais />} />
-            <Route path="/oficiais/qfm" element={<PlaceholderOficiais />} />
+            <Route path="/oficiais/:divisionCode" element={<MilitaryListPage />} />
             
             {/* Rotas de Praças */}
-            <Route path="/pracas/qpbm" element={<PlaceholderPracas />} />
-            <Route path="/pracas/qprr" element={<PlaceholderPracas />} />
-            <Route path="/pracas/qfv" element={<PlaceholderPracas />} />
-            <Route path="/pracas/qaa" element={<PlaceholderPracas />} />
-            <Route path="/pracas/qfm" element={<PlaceholderPracas />} />
+            <Route path="/pracas/:divisionCode" element={<MilitaryListPage />} />
+            
+            {/* Rotas para Militares */}
+            <Route path="/military/new/:divisionId" element={<MilitaryFormPage />} />
+            <Route path="/military/edit/:id" element={<MilitaryFormPage />} />
+            <Route path="/military/concept-sheet/:id" element={<ConceptSheetPage />} />
+            <Route path="/military/promotions/:id" element={<PromotionsHistoryPage />} />
             
             {/* Rota de Legislação */}
             <Route path="/legislacao/lei-7772" element={<Lei7772 />} />
