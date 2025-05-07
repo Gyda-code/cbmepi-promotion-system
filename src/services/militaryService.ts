@@ -1,11 +1,12 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { ConceptSheet, Division, MilitaryPersonnel, PromotionHistory, RankType } from "@/types/military";
+import { Database } from "@/integrations/supabase/types";
 
 // Divisions
 export const getDivisions = async (): Promise<Division[]> => {
   const { data, error } = await supabase
-    .from("divisions")
+    .from('divisions')
     .select("*")
     .order("id");
   
@@ -15,7 +16,7 @@ export const getDivisions = async (): Promise<Division[]> => {
 
 export const getDivisionByCode = async (code: string): Promise<Division | null> => {
   const { data, error } = await supabase
-    .from("divisions")
+    .from('divisions')
     .select("*")
     .eq("code", code)
     .single();
@@ -30,7 +31,7 @@ export const getDivisionByCode = async (code: string): Promise<Division | null> 
 // Military Personnel
 export const getMilitaryPersonnelByDivision = async (divisionId: number): Promise<MilitaryPersonnel[]> => {
   const { data, error } = await supabase
-    .from("military_personnel")
+    .from('military_personnel')
     .select("*")
     .eq("division_id", divisionId)
     .order("full_name");
@@ -41,7 +42,7 @@ export const getMilitaryPersonnelByDivision = async (divisionId: number): Promis
 
 export const getMilitaryPersonnelById = async (id: string): Promise<MilitaryPersonnel | null> => {
   const { data, error } = await supabase
-    .from("military_personnel")
+    .from('military_personnel')
     .select("*")
     .eq("id", id)
     .single();
@@ -55,7 +56,7 @@ export const getMilitaryPersonnelById = async (id: string): Promise<MilitaryPers
 
 export const createMilitaryPersonnel = async (military: Omit<MilitaryPersonnel, 'id' | 'created_at' | 'updated_at'>): Promise<MilitaryPersonnel> => {
   const { data, error } = await supabase
-    .from("military_personnel")
+    .from('military_personnel')
     .insert(military)
     .select()
     .single();
@@ -74,7 +75,7 @@ export const createMilitaryPersonnel = async (military: Omit<MilitaryPersonnel, 
 
 export const updateMilitaryPersonnel = async (id: string, military: Partial<MilitaryPersonnel>): Promise<MilitaryPersonnel> => {
   const { data, error } = await supabase
-    .from("military_personnel")
+    .from('military_personnel')
     .update(military)
     .eq("id", id)
     .select()
@@ -87,7 +88,7 @@ export const updateMilitaryPersonnel = async (id: string, military: Partial<Mili
 
 export const deleteMilitaryPersonnel = async (id: string): Promise<void> => {
   const { error } = await supabase
-    .from("military_personnel")
+    .from('military_personnel')
     .delete()
     .eq("id", id);
   
@@ -97,7 +98,7 @@ export const deleteMilitaryPersonnel = async (id: string): Promise<void> => {
 // Concept Sheets
 export const getConceptSheetByMilitaryId = async (militaryId: string): Promise<ConceptSheet | null> => {
   const { data, error } = await supabase
-    .from("concept_sheets")
+    .from('concept_sheets')
     .select("*")
     .eq("military_id", militaryId)
     .single();
@@ -111,7 +112,7 @@ export const getConceptSheetByMilitaryId = async (militaryId: string): Promise<C
 
 export const createConceptSheet = async (conceptSheet: Partial<ConceptSheet>): Promise<ConceptSheet> => {
   const { data, error } = await supabase
-    .from("concept_sheets")
+    .from('concept_sheets')
     .insert({
       military_id: conceptSheet.military_id,
       service_time_years: conceptSheet.service_time_years || 0,
@@ -132,7 +133,7 @@ export const createConceptSheet = async (conceptSheet: Partial<ConceptSheet>): P
 
 export const updateConceptSheet = async (id: string, conceptSheet: Partial<ConceptSheet>): Promise<ConceptSheet> => {
   const { data, error } = await supabase
-    .from("concept_sheets")
+    .from('concept_sheets')
     .update(conceptSheet)
     .eq("id", id)
     .select()
@@ -146,7 +147,7 @@ export const updateConceptSheet = async (id: string, conceptSheet: Partial<Conce
 // Promotion History
 export const getPromotionHistoryByMilitaryId = async (militaryId: string): Promise<PromotionHistory[]> => {
   const { data, error } = await supabase
-    .from("promotion_history")
+    .from('promotion_history')
     .select("*")
     .eq("military_id", militaryId)
     .order("promotion_date", { ascending: false });
@@ -157,7 +158,7 @@ export const getPromotionHistoryByMilitaryId = async (militaryId: string): Promi
 
 export const addPromotion = async (promotion: Omit<PromotionHistory, 'id' | 'created_at'>): Promise<PromotionHistory> => {
   const { data, error } = await supabase
-    .from("promotion_history")
+    .from('promotion_history')
     .insert(promotion)
     .select()
     .single();
