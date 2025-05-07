@@ -1,12 +1,16 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+import { Toaster } from "@/components/ui/toaster"
+import { Toaster as Sonner } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Index from "./pages/Index"
+import NotFound from "./pages/NotFound"
+import Lei7772 from "./pages/legislacao/Lei7772"
+import PlaceholderOficiais from "./pages/oficiais/PlaceholderOficiais"
+import PlaceholderPracas from "./pages/pracas/PlaceholderPracas"
+
+const queryClient = new QueryClient()
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -16,12 +20,31 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          
+          {/* Rotas de Oficiais */}
+          <Route path="/oficiais/qoem" element={<PlaceholderOficiais />} />
+          <Route path="/oficiais/qoe" element={<PlaceholderOficiais />} />
+          <Route path="/oficiais/qorr" element={<PlaceholderOficiais />} />
+          <Route path="/oficiais/qfv" element={<PlaceholderOficiais />} />
+          <Route path="/oficiais/qaa" element={<PlaceholderOficiais />} />
+          <Route path="/oficiais/qfm" element={<PlaceholderOficiais />} />
+          
+          {/* Rotas de Praças */}
+          <Route path="/pracas/qpbm" element={<PlaceholderPracas />} />
+          <Route path="/pracas/qprr" element={<PlaceholderPracas />} />
+          <Route path="/pracas/qfv" element={<PlaceholderPracas />} />
+          <Route path="/pracas/qaa" element={<PlaceholderPracas />} />
+          <Route path="/pracas/qfm" element={<PlaceholderPracas />} />
+          
+          {/* Rota de Legislação */}
+          <Route path="/legislacao/lei-7772" element={<Lei7772 />} />
+          
+          {/* Rota 404 */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+)
 
-export default App;
+export default App
