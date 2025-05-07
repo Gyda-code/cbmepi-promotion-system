@@ -1,3 +1,4 @@
+
 import { differenceInMonths, parse } from 'date-fns';
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -7,33 +8,17 @@ import {
   PromotionAccessList, 
   PROMOTION_DATES, 
   RankType, 
-  VacancyQuota,
-  ranksOrder
+  VacancyQuota 
 } from "@/types/military";
-import { Database } from "@/integrations/supabase/types";
+import { mapToMilitaryPersonnel } from './militaryService';
 
-// Helper function to map database response to MilitaryPersonnel interface
-const mapToMilitaryPersonnel = (data: any): MilitaryPersonnel => {
-  return {
-    ...data,
-    // Set default values for fields that don't exist in database yet
-    has_cfo: data.has_cfo ?? false,
-    has_cao: data.has_cao ?? false,
-    has_chobm: data.has_chobm ?? false,
-    has_superior_degree: data.has_superior_degree ?? false,
-    is_health_approved: data.is_health_approved ?? true,
-    has_reduced_interstice: data.has_reduced_interstice ?? false,
-    is_sub_judice: data.is_sub_judice ?? false,
-    is_in_disciplinary_process: data.is_in_disciplinary_process ?? false,
-    is_on_desertion: data.is_on_desertion ?? false,
-    is_on_leave: data.is_on_leave ?? false,
-    is_on_limited_service: data.is_on_limited_service ?? false
-  };
-};
+// ----- Interstice Calculation -----
 
-// Get the minimum required interstice for promotion based on rank and division type
+/**
+ * Get the minimum required interstice for promotion based on rank and division type
+ * Following the requirements in RF005 and Law 7.772
+ */
 export function getMinimumInterstice(rank: RankType, divisionType: string): number {
-  // Based on RF005 from requirements document
   if (divisionType === 'QOEM') {
     switch (rank) {
       case '2º TENENTE': return 2;
@@ -65,7 +50,9 @@ export function getMinimumInterstice(rank: RankType, divisionType: string): numb
   return 0; // Default or not applicable
 }
 
-// Calculate interstice (time in current rank)
+/**
+ * Calculate interstice (time in current rank) in years
+ */
 export function calculateInterstice(military: MilitaryPersonnel): number {
   if (!military.last_promotion_date) {
     return 0;
@@ -79,7 +66,12 @@ export function calculateInterstice(military: MilitaryPersonnel): number {
   return Math.floor(monthsDifference / 12);
 }
 
-// Check if a military meets all requirements for access lists
+// ----- Promotion Requirements -----
+
+/**
+ * Check if a military meets all requirements for access lists
+ * Based on Art. 21 and 22 of Law 5.461
+ */
 export function checkPromotionRequirements(
   military: MilitaryPersonnel, 
   division: Division
@@ -145,7 +137,12 @@ export function checkPromotionRequirements(
   };
 }
 
-// Generate Quadro de Acesso por Antiguidade (QAA)
+// ----- Access List Generation -----
+
+/**
+ * Generate Quadro de Acesso por Antiguidade (QAA)
+ * Following Law 5.461 requirements
+ */
 export async function generateQAA(divisionId: number): Promise<PromotionAccessList[]> {
   try {
     // 1. Get the division
@@ -197,7 +194,10 @@ export async function generateQAA(divisionId: number): Promise<PromotionAccessLi
   }
 }
 
-// Generate Quadro de Acesso por Merecimento (QAM)
+/**
+ * Generate Quadro de Acesso por Merecimento (QAM)
+ * Following Law 5.461 requirements with merit-based sorting
+ */
 export async function generateQAM(divisionId: number): Promise<PromotionAccessList[]> {
   try {
     // 1. Get the division
@@ -265,7 +265,11 @@ export async function generateQAM(divisionId: number): Promise<PromotionAccessLi
   }
 }
 
-// Get vacancy quotas based on the Law 7.772/2022, Annex
+// ----- Vacancy and Promotion Distribution -----
+
+/**
+ * Get vacancy quotas based on the Law 7.772/2022, Annex
+ */
 export async function getVacancyQuotas(): Promise<VacancyQuota[]> {
   // This would ideally come from a database table, 
   // but for simplicity we're hard-coding the values from Law 7.772/2022
@@ -293,12 +297,14 @@ export async function getVacancyQuotas(): Promise<VacancyQuota[]> {
   ];
 }
 
-// Calculate promotion distribution by seniority and merit
+/**
+ * Calculate promotion distribution by seniority and merit
+ * According to Article 9 of Law 5.461/2005
+ */
 export function calculatePromotionDistribution(vacancies: number): { 
   byMerit: number; 
   bySeniority: number; 
 } {
-  // According to Article 9 of Law 5.461/2005
   if (vacancies <= 0) {
     return { byMerit: 0, bySeniority: 0 };
   }
@@ -318,7 +324,12 @@ export function calculatePromotionDistribution(vacancies: number): {
   return { byMerit, bySeniority };
 }
 
-// Check if the current date is close to a promotion date
+// ----- Promotion Dates -----
+
+/**
+ * Check if the current date is close to a promotion date
+ * Based on Law requirements (July 18 and December 23)
+ */
 export function isNearPromotionDate(daysThreshold: number = 30): boolean {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -334,7 +345,10 @@ export function isNearPromotionDate(daysThreshold: number = 30): boolean {
   return julyDiff <= daysThreshold || decemberDiff <= daysThreshold;
 }
 
-// Get the next promotion date
+/**
+ * Get the next promotion date
+ * Based on Law requirements (July 18 and December 23)
+ */
 export function getNextPromotionDate(): Date {
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -357,7 +371,9 @@ export function getNextPromotionDate(): Date {
   return julyPromotion;
 }
 
-// Update military service with our new promotion-related fields
+/**
+ * Update military personnel promotion-related fields
+ */
 export const updateMilitaryPersonnelFields = async (
   id: string, 
   fields: Partial<MilitaryPersonnel>

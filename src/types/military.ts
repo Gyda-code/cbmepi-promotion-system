@@ -38,7 +38,7 @@ export interface MilitaryPersonnel {
   photo_url: string | null;
   created_at: string;
   updated_at: string;
-  // New fields for promotion requirements
+  // Requirements for promotion
   has_cfo: boolean;
   has_cao: boolean;
   has_chobm: boolean;
@@ -77,7 +77,7 @@ export interface PromotionHistory {
   created_at: string;
 }
 
-// Ranks in order for promotions
+// Ranks in order for promotions - moved to rankService.ts
 export const ranksOrder: Record<RankType, number> = {
   'SOLDADO': 1,
   'CABO': 2,

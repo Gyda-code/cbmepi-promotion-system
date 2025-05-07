@@ -4,7 +4,7 @@ import { ConceptSheet, Division, MilitaryPersonnel, PromotionHistory, RankType }
 import { Database } from "@/integrations/supabase/types";
 
 // Helper function to map database response to MilitaryPersonnel interface
-const mapToMilitaryPersonnel = (data: any): MilitaryPersonnel => {
+export const mapToMilitaryPersonnel = (data: any): MilitaryPersonnel => {
   return {
     ...data,
     // Set default values for fields that don't exist in database yet
@@ -22,7 +22,8 @@ const mapToMilitaryPersonnel = (data: any): MilitaryPersonnel => {
   };
 };
 
-// Divisions
+// ----- Division Service Functions -----
+
 export const getDivisions = async (): Promise<Division[]> => {
   const { data, error } = await supabase
     .from('divisions')
@@ -47,7 +48,8 @@ export const getDivisionByCode = async (code: string): Promise<Division | null> 
   return data;
 };
 
-// Military Personnel
+// ----- Military Personnel Service Functions -----
+
 export const getMilitaryPersonnelByDivision = async (divisionId: number): Promise<MilitaryPersonnel[]> => {
   const { data, error } = await supabase
     .from('military_personnel')
@@ -114,7 +116,8 @@ export const deleteMilitaryPersonnel = async (id: string): Promise<void> => {
   if (error) throw error;
 };
 
-// Concept Sheets
+// ----- Concept Sheet Service Functions -----
+
 export const getConceptSheetByMilitaryId = async (militaryId: string): Promise<ConceptSheet | null> => {
   const { data, error } = await supabase
     .from('concept_sheets')
@@ -163,7 +166,8 @@ export const updateConceptSheet = async (id: string, conceptSheet: Partial<Conce
   return data;
 };
 
-// Promotion History
+// ----- Promotion History Service Functions -----
+
 export const getPromotionHistoryByMilitaryId = async (militaryId: string): Promise<PromotionHistory[]> => {
   const { data, error } = await supabase
     .from('promotion_history')
@@ -194,7 +198,8 @@ export const addPromotion = async (promotion: Omit<PromotionHistory, 'id' | 'cre
   return data;
 };
 
-// File upload helpers
+// ----- File Upload Helpers -----
+
 export const uploadProfilePhoto = async (file: File, fileName: string): Promise<string> => {
   const { data, error } = await supabase.storage
     .from('profile-photos')
@@ -212,22 +217,3 @@ export const uploadProfilePhoto = async (file: File, fileName: string): Promise<
   
   return publicUrl;
 };
-
-// Helper for rank ordering
-export const rankOrder: Record<RankType, number> = {
-  'SOLDADO': 1,
-  'CABO': 2,
-  'SARGENTO': 3,
-  '3º SARGENTO': 4,
-  '2º SARGENTO': 5,
-  '1º SARGENTO': 6,
-  'SUBTENENTE': 7,
-  'ASPIRANTE': 8,
-  '2º TENENTE': 9,
-  '1º TENENTE': 10,
-  'CAPITÃO': 11,
-  'MAJOR': 12,
-  'TENENTE-CORONEL': 13,
-  'CORONEL': 14
-};
-
