@@ -17,9 +17,9 @@ const OficiaisLayout = () => {
 
   return (
     <AppLayout>
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Quadro de Oficiais - {currentQuadro}</h1>
-        <PlaceholderOficiais />
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Quadro de Oficiais - {currentQuadro}</h1>
+        <PlaceholderOficiais quadro={currentQuadro} />
       </div>
     </AppLayout>
   );

@@ -17,9 +17,9 @@ const PracasLayout = () => {
 
   return (
     <AppLayout>
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Quadro de Praças - {currentQuadro}</h1>
-        <PlaceholderPracas />
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Quadro de Praças - {currentQuadro}</h1>
+        <PlaceholderPracas quadro={currentQuadro} />
       </div>
     </AppLayout>
   );
