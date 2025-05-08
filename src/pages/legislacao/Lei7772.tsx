@@ -1,4 +1,7 @@
 
+import React from "react";
+import { AppLayout } from "@/components/Layout/AppLayout";
+
 const Lei7772 = () => {
   return (
     <div className="space-y-6">
@@ -23,7 +26,7 @@ const Lei7772 = () => {
         <p className="italic text-muted-foreground">[Texto da lei completo - este é apenas um placeholder]</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Lei7772
+export default Lei7772;

@@ -7,7 +7,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Index from "./pages/Index"
 import NotFound from "./pages/NotFound"
-import Lei7772 from "./pages/legislacao/Lei7772"
+
+// Layouts
+import OficiaisLayout from "./pages/oficiais/OficiaisLayout"
+import PracasLayout from "./pages/pracas/PracasLayout"
+import LegislacaoLayout from "./pages/legislacao/LegislacaoLayout"
 
 // Military pages
 import MilitaryListPage from "./pages/military/MilitaryListPage"
@@ -33,10 +37,19 @@ const App = () => (
             <Route path="/" element={<Index />} />
             
             {/* Rotas de Oficiais */}
-            <Route path="/oficiais/:divisionCode" element={<MilitaryListPage />} />
+            <Route path="/oficiais/qoem" element={<OficiaisLayout />} />
+            <Route path="/oficiais/qoe" element={<OficiaisLayout />} />
+            <Route path="/oficiais/qorr" element={<OficiaisLayout />} />
+            <Route path="/oficiais/qfv" element={<OficiaisLayout />} />
+            <Route path="/oficiais/qaa" element={<OficiaisLayout />} />
+            <Route path="/oficiais/qfm" element={<OficiaisLayout />} />
             
             {/* Rotas de Praças */}
-            <Route path="/pracas/:divisionCode" element={<MilitaryListPage />} />
+            <Route path="/pracas/qpbm" element={<PracasLayout />} />
+            <Route path="/pracas/qprr" element={<PracasLayout />} />
+            <Route path="/pracas/qfv" element={<PracasLayout />} />
+            <Route path="/pracas/qaa" element={<PracasLayout />} />
+            <Route path="/pracas/qfm" element={<PracasLayout />} />
             
             {/* Rotas para Militares */}
             <Route path="/military/new/:divisionId" element={<MilitaryFormPage />} />
@@ -50,7 +63,7 @@ const App = () => (
             <Route path="/promocao/qfv" element={<VacancyQuotaPage />} />
             
             {/* Rota de Legislação */}
-            <Route path="/legislacao/lei-7772" element={<Lei7772 />} />
+            <Route path="/legislacao/lei-7772" element={<LegislacaoLayout />} />
             
             {/* Rota 404 */}
             <Route path="*" element={<NotFound />} />

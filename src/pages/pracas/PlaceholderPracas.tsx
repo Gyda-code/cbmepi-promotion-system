@@ -1,31 +1,32 @@
 
-import { useLocation } from "react-router-dom"
+import React from "react";
+import { useLocation } from "react-router-dom";
 
 const PlaceholderPracas = () => {
-  const location = useLocation()
-  const pathParts = location.pathname.split('/')
-  const section = pathParts[pathParts.length - 1].toUpperCase()
+  const location = useLocation();
+  const pathParts = location.pathname.split('/');
+  const section = pathParts[pathParts.length - 1].toUpperCase();
   
-  let title = "Seção não encontrada"
+  let title = "Seção não encontrada";
   
   switch(section) {
     case 'QPBM':
-      title = "QPBM - Quadro de Praças Bombeiros Militares Ativos"
-      break
+      title = "QPBM - Quadro de Praças Bombeiros Militares Ativos";
+      break;
     case 'QPRR':
-      title = "QPRR - Quadro de Praças da Reserva Remunerada"
-      break
+      title = "QPRR - Quadro de Praças da Reserva Remunerada";
+      break;
     case 'QFV':
-      title = "QFV - Quadro de Fixação de Vagas"
-      break
+      title = "QFV - Quadro de Fixação de Vagas";
+      break;
     case 'QAA':
-      title = "QAA - Quadro de Acesso por Antiguidade"
-      break
+      title = "QAA - Quadro de Acesso por Antiguidade";
+      break;
     case 'QFM':
-      title = "QFM - Quadro de Acesso por Merecimento"
-      break
+      title = "QFM - Quadro de Acesso por Merecimento";
+      break;
     default:
-      title = "Praças - " + section
+      title = "Praças - " + section;
   }
   
   return (
@@ -39,7 +40,7 @@ const PlaceholderPracas = () => {
         <p>Esta seção está sendo implementada. Em breve, conteúdo específico para {title} estará disponível aqui.</p>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PlaceholderPracas
+export default PlaceholderPracas;
