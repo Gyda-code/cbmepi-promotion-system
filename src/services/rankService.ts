@@ -1,7 +1,6 @@
 
 import { RankType } from "@/types/military";
 
-// Map to establish rank order for promotions
 export const rankOrder: Record<RankType, number> = {
   'SOLDADO': 1,
   'CABO': 2,
@@ -19,29 +18,20 @@ export const rankOrder: Record<RankType, number> = {
   'CORONEL': 14
 };
 
-// Function to determine next rank for promotion
-export const getNextRank = (currentRank: RankType): RankType | null => {
-  const currentRankLevel = rankOrder[currentRank];
+// Helper function to get next rank in promotion sequence
+export const getNextRank = (currentRank: RankType): RankType => {
+  const currentRankOrder = rankOrder[currentRank];
   
-  for (const [rank, level] of Object.entries(rankOrder) as [RankType, number][]) {
-    if (level === currentRankLevel + 1) {
-      return rank;
+  for (const [rank, order] of Object.entries(rankOrder) as [RankType, number][]) {
+    if (order > currentRankOrder) {
+      return rank as RankType;
     }
   }
   
-  return null; // No next rank found (already at highest rank)
+  return currentRank; // If already at highest rank
 };
 
-// Function to check if target rank is higher than current rank
-export const isHigherRank = (currentRank: RankType, targetRank: RankType): boolean => {
-  return rankOrder[targetRank] > rankOrder[currentRank];
-};
-
-// Get available ranks for promotion from current rank
-export const getAvailableRanksForPromotion = (currentRank: RankType): RankType[] => {
-  const currentRankLevel = rankOrder[currentRank];
-  
-  return Object.entries(rankOrder)
-    .filter(([_, level]) => level > currentRankLevel)
-    .map(([rank]) => rank as RankType);
+// Helper function to check if a promotion is valid (rank order check)
+export const isValidPromotion = (previousRank: RankType, newRank: RankType): boolean => {
+  return rankOrder[newRank] > rankOrder[previousRank];
 };
