@@ -1,10 +1,7 @@
 
 import { RankType } from "@/types/military";
 
-/**
- * Helper for rank ordering
- * Used for comparing ranks in the promotion logic
- */
+// Map to establish rank order for promotions
 export const rankOrder: Record<RankType, number> = {
   'SOLDADO': 1,
   'CABO': 2,
@@ -22,62 +19,29 @@ export const rankOrder: Record<RankType, number> = {
   'CORONEL': 14
 };
 
-/**
- * Get the next rank in the progression
- * @param currentRank The current rank
- * @param divisionType The type of division (QOEM, QOE, QPBM)
- * @returns The next rank in the progression or null if at top rank
- */
-export function getNextRank(currentRank: RankType, divisionType: string): RankType | null {
-  if (divisionType === 'QOEM') {
-    switch (currentRank) {
-      case '2º TENENTE': return '1º TENENTE';
-      case '1º TENENTE': return 'CAPITÃO';
-      case 'CAPITÃO': return 'MAJOR';
-      case 'MAJOR': return 'TENENTE-CORONEL';
-      case 'TENENTE-CORONEL': return 'CORONEL';
-      case 'CORONEL': return null; // Top rank
-      default: return null;
-    }
-  } else if (divisionType === 'QOE') {
-    switch (currentRank) {
-      case '2º TENENTE': return '1º TENENTE';
-      case '1º TENENTE': return 'CAPITÃO';
-      case 'CAPITÃO': return null; // Top rank for QOE
-      default: return null;
-    }
-  } else if (divisionType === 'QPBM') {
-    switch (currentRank) {
-      case 'SOLDADO': return 'CABO';
-      case 'CABO': return '3º SARGENTO';
-      case 'SARGENTO': return '3º SARGENTO';
-      case '3º SARGENTO': return '2º SARGENTO';
-      case '2º SARGENTO': return '1º SARGENTO';
-      case '1º SARGENTO': return 'SUBTENENTE';
-      case 'SUBTENENTE': return null; // Top rank for QPBM
-      default: return null;
+// Function to determine next rank for promotion
+export const getNextRank = (currentRank: RankType): RankType | null => {
+  const currentRankLevel = rankOrder[currentRank];
+  
+  for (const [rank, level] of Object.entries(rankOrder) as [RankType, number][]) {
+    if (level === currentRankLevel + 1) {
+      return rank;
     }
   }
   
-  return null;
-}
+  return null; // No next rank found (already at highest rank)
+};
 
-/**
- * Check if a rank is eligible for promotion by merit
- * According to promotion laws, not all ranks can be promoted by merit
- */
-export function isEligibleForMeritPromotion(rank: RankType, divisionType: string): boolean {
-  // Based on Law 5.461 Art. 9
-  if (divisionType === 'QOEM') {
-    // Officers can be promoted by merit from Captain and higher
-    return ['CAPITÃO', 'MAJOR', 'TENENTE-CORONEL'].includes(rank);
-  } else if (divisionType === 'QOE') {
-    // Specialist officers - only 1º TENENTE can be promoted by merit
-    return rank === '1º TENENTE';
-  } else if (divisionType === 'QPBM') {
-    // In QPBM, only Sergeants can be promoted by merit
-    return ['3º SARGENTO', '2º SARGENTO', '1º SARGENTO'].includes(rank);
-  }
+// Function to check if target rank is higher than current rank
+export const isHigherRank = (currentRank: RankType, targetRank: RankType): boolean => {
+  return rankOrder[targetRank] > rankOrder[currentRank];
+};
+
+// Get available ranks for promotion from current rank
+export const getAvailableRanksForPromotion = (currentRank: RankType): RankType[] => {
+  const currentRankLevel = rankOrder[currentRank];
   
-  return false;
-}
+  return Object.entries(rankOrder)
+    .filter(([_, level]) => level > currentRankLevel)
+    .map(([rank]) => rank as RankType);
+};

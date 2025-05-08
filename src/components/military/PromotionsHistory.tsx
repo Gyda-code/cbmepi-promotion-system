@@ -5,9 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { toast } from 'sonner';
-import { Loader2, Plus, Award } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 
 import { 
   getPromotionHistoryByMilitaryId, 

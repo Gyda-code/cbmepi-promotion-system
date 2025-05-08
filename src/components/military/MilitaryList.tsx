@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Plus, Edit, FileText, Award, Loader2 } from 'lucide-react';
@@ -12,11 +12,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { getDivisionByCode, getMilitaryPersonnelByDivision } from '@/services/militaryService';
-import { Division, MilitaryPersonnel } from '@/types/military';
+import { Division } from '@/types/military';
 import { getInitials } from '@/lib/utils';
 
-const MilitaryList = () => {
-  const { divisionCode } = useParams<{ divisionCode: string }>();
+interface MilitaryListProps {
+  divisionCode: string;
+}
+
+const MilitaryList: React.FC<MilitaryListProps> = ({ divisionCode }) => {
   const [division, setDivision] = useState<Division | null>(null);
   const navigate = useNavigate();
 

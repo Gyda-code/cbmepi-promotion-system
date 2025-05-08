@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/Layout/AppLayout";
-import PlaceholderPracas from "./PlaceholderPracas";
+import MilitaryList from "@/components/military/MilitaryList";
 
 const PracasLayout = () => {
   const location = useLocation();
@@ -17,10 +17,7 @@ const PracasLayout = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Quadro de Praças - {currentQuadro}</h1>
-        <PlaceholderPracas quadro={currentQuadro} />
-      </div>
+      <MilitaryList divisionCode={currentQuadro} />
     </AppLayout>
   );
 };

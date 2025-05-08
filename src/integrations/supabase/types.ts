@@ -98,7 +98,18 @@ export type Database = {
           division_id: number
           entry_date: string
           full_name: string
+          has_cao: boolean | null
+          has_cfo: boolean | null
+          has_chobm: boolean | null
+          has_reduced_interstice: boolean | null
+          has_superior_degree: boolean | null
           id: string
+          is_health_approved: boolean | null
+          is_in_disciplinary_process: boolean | null
+          is_on_desertion: boolean | null
+          is_on_leave: boolean | null
+          is_on_limited_service: boolean | null
+          is_sub_judice: boolean | null
           last_promotion_date: string | null
           photo_url: string | null
           rank: Database["public"]["Enums"]["rank_type"]
@@ -110,7 +121,18 @@ export type Database = {
           division_id: number
           entry_date: string
           full_name: string
+          has_cao?: boolean | null
+          has_cfo?: boolean | null
+          has_chobm?: boolean | null
+          has_reduced_interstice?: boolean | null
+          has_superior_degree?: boolean | null
           id?: string
+          is_health_approved?: boolean | null
+          is_in_disciplinary_process?: boolean | null
+          is_on_desertion?: boolean | null
+          is_on_leave?: boolean | null
+          is_on_limited_service?: boolean | null
+          is_sub_judice?: boolean | null
           last_promotion_date?: string | null
           photo_url?: string | null
           rank: Database["public"]["Enums"]["rank_type"]
@@ -122,7 +144,18 @@ export type Database = {
           division_id?: number
           entry_date?: string
           full_name?: string
+          has_cao?: boolean | null
+          has_cfo?: boolean | null
+          has_chobm?: boolean | null
+          has_reduced_interstice?: boolean | null
+          has_superior_degree?: boolean | null
           id?: string
+          is_health_approved?: boolean | null
+          is_in_disciplinary_process?: boolean | null
+          is_on_desertion?: boolean | null
+          is_on_leave?: boolean | null
+          is_on_limited_service?: boolean | null
+          is_sub_judice?: boolean | null
           last_promotion_date?: string | null
           photo_url?: string | null
           rank?: Database["public"]["Enums"]["rank_type"]
