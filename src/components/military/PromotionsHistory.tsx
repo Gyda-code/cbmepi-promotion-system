@@ -12,9 +12,10 @@ import { Loader2, Plus, Award } from 'lucide-react';
 import { 
   getPromotionHistoryByMilitaryId, 
   getMilitaryPersonnelById,
-  addPromotion,
-  rankOrder
+  addPromotion
 } from '@/services/militaryService';
+
+import { rankOrder } from '@/services/rankService';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
