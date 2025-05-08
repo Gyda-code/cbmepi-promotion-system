@@ -1,12 +1,15 @@
 
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { AppLayout } from "@/components/Layout/AppLayout";
 
-const PlaceholderOficiais = () => {
+interface PlaceholderOficiaisProps {
+  quadro?: string;
+}
+
+const PlaceholderOficiais: React.FC<PlaceholderOficiaisProps> = ({ quadro }) => {
   const location = useLocation();
   const pathParts = location.pathname.split('/');
-  const section = pathParts[pathParts.length - 1].toUpperCase();
+  const section = quadro || pathParts[pathParts.length - 1].toUpperCase();
   
   let title = "Seção não encontrada";
   
